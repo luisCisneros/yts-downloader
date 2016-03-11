@@ -28,9 +28,9 @@ public class MainWindowController implements Initializable {
 
     @FXML private TextField searchTermTextField;
     @FXML private ProgressIndicator searchingProgressIndicator;
-    @FXML private ChoiceBox qualityChoiceBox;
-    @FXML private ChoiceBox genreChoiceBox;
-    @FXML private ChoiceBox ratingChoiceBox;
+    @FXML private ChoiceBox<Quality> qualityChoiceBox;
+    @FXML private ChoiceBox<Genre> genreChoiceBox;
+    @FXML private ChoiceBox<Rating> ratingChoiceBox;
     @FXML private TableView<Movie> moviesTableView;
     @FXML private TableColumn<Movie, Boolean> checkedTableColumn;
     @FXML private CheckBox selectAllCheckBox;
@@ -65,9 +65,9 @@ public class MainWindowController implements Initializable {
     protected void searchMovies(ActionEvent event) {
         searchingProgressIndicator.setVisible(true);
         String searchTerm = searchTermTextField.getText();
-        Quality quality = (Quality) qualityChoiceBox.getValue();
-        Genre genre = (Genre) genreChoiceBox.getValue();
-        Rating rating = (Rating) ratingChoiceBox.getValue();
+        Quality quality = qualityChoiceBox.getValue();
+        Genre genre = genreChoiceBox.getValue();
+        Rating rating = ratingChoiceBox.getValue();
         SearchParameters searchParameters = new SearchParameters(searchTerm, quality, genre, rating, OrderBy.ALPHABETICAL);
 
         Task task = new Task() {
@@ -138,12 +138,6 @@ public class MainWindowController implements Initializable {
                     int counter = 0;
                     int progress = 0;
                     Path path = destinationDirectory.toPath();
-                    /*for (Movie movie : observableMovies) {
-                        if (movie.isChecked()) {
-                            counter += torrentFileDownloader.download(movie, path);
-                        }
-                    }*/
-                    //-------------------------
                     if (downloadAllRadioButton.isSelected()) {
                         for (Movie movie : observableMovies) {
                             if (movie.isChecked()) {
@@ -166,7 +160,6 @@ public class MainWindowController implements Initializable {
                             updateProgress(++progress, observableMovies.size());
                         }
                     }
-                    //-------------------------
                     return counter;
                 }
             };
