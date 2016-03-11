@@ -1,0 +1,108 @@
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<BorderPane fx:controller="app.controller.MainWindowController" xmlns:fx="http://javafx.com/fxml">
+    <padding>
+        <Insets top="15" right="13" bottom="10" left="13"/>
+    </padding>
+    <top>
+        <VBox spacing="10">
+            <HBox spacing="10">
+                <Label text="Search term"/>
+                <TextField fx:id="searchTermTextField" prefWidth="300"/>
+                <Button fx:id="searchButton" onAction="#searchMovies" text="Search"/>
+                <ProgressIndicator fx:id="searchingProgressIndicator" prefWidth="20" prefHeight="20" visible="false"/>
+                <Label fx:id="searchingLabel" text="searching" visible="false"/>
+            </HBox>
+        </VBox>
+    </top>
+    <left>
+        <VBox spacing="8">
+            <padding>
+                <Insets top="20" right="15"/>
+            </padding>
+            <Label text="Quality"/>
+            <ChoiceBox fx:id="qualityChoiceBox" prefWidth="125">
+            </ChoiceBox>
+            <Label text="Genre"/>
+            <ChoiceBox fx:id="genreChoiceBox" prefWidth="125"></ChoiceBox>
+            <Label text="Rating"/>
+            <ChoiceBox fx:id="ratingChoiceBox" prefWidth="125"></ChoiceBox>
+            <Label fx:id="downloadLabel" text="Download" visible="false"/>
+            <ProgressIndicator fx:id="downloadProgressIndicator" visible="false" prefWidth="70" prefHeight="70"/>
+        </VBox>
+    </left>
+    <center>
+        <VBox spacing="8">
+            <padding>
+                <Insets top="20"/>
+            </padding>
+            <Label text="Search results"/>
+            <TableView fx:id="moviesTableView" maxWidth="750" editable="true">
+                <placeholder>
+                    <Label text="Let's find some movies first!"/>
+                </placeholder>
+                <columns>
+                    <TableColumn fx:id="checkedTableColumn" prefWidth="40" editable="true" sortable="false">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="checked"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Name" prefWidth="300">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="name"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Year" prefWidth="80">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="year"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Rating" prefWidth="80">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="rating"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="1080p" prefWidth="70">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="hd1080pAvailability"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="720p" prefWidth="70">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="hd720pAvailability"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                </columns>
+            </TableView>
+            <BorderPane>
+                <left>
+                    <CheckBox fx:id="selectAllCheckBox" onAction="#selectAllMovies" selected="false" text="Select all" disable="true"/>
+                </left>
+                <right>
+                    <HBox spacing="10">
+                        <fx:define>
+                            <ToggleGroup fx:id="downloadOptionsToggleGroup"/>
+                        </fx:define>
+                        <RadioButton fx:id="hd720pRadioButton" text="720p" toggleGroup="$downloadOptionsToggleGroup" disable="true"/>
+                        <RadioButton fx:id="hd1080pRadioButton" text="1080p" toggleGroup="$downloadOptionsToggleGroup" disable="true"/>
+                        <RadioButton fx:id="downloadAllRadioButton" text="Both" toggleGroup="$downloadOptionsToggleGroup" disable="true" selected="true"/>
+                        <Button fx:id="downloadButton" onAction="#downloadTorrents" text="Download torrents" disable="true"/>
+                    </HBox>
+                </right>
+            </BorderPane>
+        </VBox>
+    </center>
+</BorderPane>
