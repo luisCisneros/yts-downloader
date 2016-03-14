@@ -22,9 +22,8 @@
             <HBox spacing="10">
                 <Label text="Search term"/>
                 <TextField fx:id="searchTermTextField" prefWidth="300"/>
-                <Button fx:id="searchButton" onAction="#searchMovies" text="Search"/>
+                <Button onAction="#searchMovies" text="Search"/>
                 <ProgressIndicator fx:id="searchingProgressIndicator" prefWidth="20" prefHeight="20" visible="false"/>
-                <Label fx:id="searchingLabel" text="searching" visible="false"/>
             </HBox>
         </VBox>
     </top>
@@ -37,11 +36,16 @@
             <ChoiceBox fx:id="qualityChoiceBox" prefWidth="125">
             </ChoiceBox>
             <Label text="Genre"/>
-            <ChoiceBox fx:id="genreChoiceBox" prefWidth="125"></ChoiceBox>
+            <ChoiceBox fx:id="genreChoiceBox" prefWidth="125"/>
             <Label text="Rating"/>
-            <ChoiceBox fx:id="ratingChoiceBox" prefWidth="125"></ChoiceBox>
-            <Label fx:id="downloadLabel" text="Download" visible="false"/>
+            <ChoiceBox fx:id="ratingChoiceBox" prefWidth="125"/>
+            <Label fx:id="downloadLabel" text="Download" visible="false">
+                <padding>
+                    <Insets top="30"/>
+                </padding>
+            </Label>
             <ProgressIndicator fx:id="downloadProgressIndicator" visible="false" prefWidth="70" prefHeight="70"/>
+            <Button fx:id="cancelDownloadButton" text="Cancel" visible="false"/>
         </VBox>
     </left>
     <center>
@@ -49,8 +53,11 @@
             <padding>
                 <Insets top="20"/>
             </padding>
-            <Label text="Search results"/>
-            <TableView fx:id="moviesTableView" maxWidth="750" editable="true">
+            <HBox spacing="5">
+                <Label text="Search results"/>
+                <Label fx:id="totalMoviesLabel" visible="false"/>
+            </HBox>
+            <TableView fx:id="moviesTableView" maxWidth="640" editable="true">
                 <placeholder>
                     <Label text="Let's find some movies first!"/>
                 </placeholder>

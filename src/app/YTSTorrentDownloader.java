@@ -17,8 +17,9 @@ public class YTSTorrentDownloader extends Application {
         stage = primaryStage;
         Locale.setDefault(Locale.ENGLISH);
         Parent root = FXMLLoader.load(getClass().getResource("view/main_window.fxml"));
-        Scene scene = new Scene(root, 850, 400);
+        Scene scene = new Scene(root, 810, 450);
         primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
         primaryStage.setTitle("YTS Torrents Downloader");
         primaryStage.show();
     }

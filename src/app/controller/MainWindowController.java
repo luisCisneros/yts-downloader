@@ -40,6 +40,8 @@ public class MainWindowController implements Initializable {
     @FXML private RadioButton downloadAllRadioButton;
     @FXML private ProgressIndicator downloadProgressIndicator;
     @FXML private Label downloadLabel;
+    @FXML private Label totalMoviesLabel;
+    @FXML private Button cancelDownloadButton;
 
     private ArrayList<Movie> movies;
     private ObservableList<Movie> observableMovies;
@@ -85,6 +87,8 @@ public class MainWindowController implements Initializable {
                 if (!movies.isEmpty()) {
                     observableMovies.setAll(movies);
                     moviesTableView.setItems(observableMovies);
+                    totalMoviesLabel.setText("(" + Integer.toString(observableMovies.size()) + ")");
+                    totalMoviesLabel.setVisible(true);
                     searchingProgressIndicator.setVisible(false);
                     selectAllCheckBox.setDisable(false);
                     selectAllCheckBox.setSelected(false);
@@ -140,6 +144,9 @@ public class MainWindowController implements Initializable {
                     Path path = destinationDirectory.toPath();
                     if (downloadAllRadioButton.isSelected()) {
                         for (Movie movie : observableMovies) {
+                            if (isCancelled()) {
+                                break;
+                            }
                             if (movie.isChecked()) {
                                 counter += torrentFileDownloader.download(movie, path);
                             }
@@ -147,6 +154,9 @@ public class MainWindowController implements Initializable {
                         }
                     } else if (hd1080pRadioButton.isSelected()) {
                         for (Movie movie : observableMovies) {
+                            if (isCancelled()) {
+                                break;
+                            }
                             if (movie.isChecked()) {
                                 counter += torrentFileDownloader.download(movie, path, Quality.HD_1080P) ? 1 : 0;
                             }
@@ -154,6 +164,9 @@ public class MainWindowController implements Initializable {
                         }
                     } else if (hd720pRadioButton.isSelected()) {
                         for (Movie movie : observableMovies) {
+                            if (isCancelled()) {
+                                break;
+                            }
                             if (movie.isChecked()) {
                                 counter += torrentFileDownloader.download(movie, path, Quality.HD_720P) ? 1 : 0;
                             }
@@ -173,6 +186,7 @@ public class MainWindowController implements Initializable {
                     alert.showAndWait();
                     downloadProgressIndicator.setVisible(false);
                     downloadLabel.setVisible(false);
+                    cancelDownloadButton.setVisible(false);
                 }
             });
 
@@ -185,6 +199,16 @@ public class MainWindowController implements Initializable {
                     alert.showAndWait();
                     downloadProgressIndicator.setVisible(false);
                     downloadLabel.setVisible(false);
+                    cancelDownloadButton.setVisible(false);
+                }
+            });
+
+            task.setOnCancelled(new EventHandler<WorkerStateEvent>() {
+                @Override
+                public void handle(WorkerStateEvent event) {
+                    downloadProgressIndicator.setVisible(false);
+                    downloadLabel.setVisible(false);
+                    cancelDownloadButton.setVisible(false);
                 }
             });
 
@@ -192,6 +216,15 @@ public class MainWindowController implements Initializable {
                 downloadProgressIndicator.setVisible(true);
                 downloadLabel.setVisible(true);
                 downloadProgressIndicator.progressProperty().bind(task.progressProperty());
+                // ----------- CANCEL DOWNLOAD -----------------------
+                cancelDownloadButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        task.cancel();
+                    }
+                });
+                cancelDownloadButton.setVisible(true);
+                // ----------------------------------------
                 new Thread(task).start();
             }
         } else {
