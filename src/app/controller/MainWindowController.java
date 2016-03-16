@@ -28,9 +28,9 @@ public class MainWindowController implements Initializable {
 
     @FXML private TextField searchTermTextField;
     @FXML private ProgressIndicator searchingProgressIndicator;
-    @FXML private ChoiceBox qualityChoiceBox;
-    @FXML private ChoiceBox genreChoiceBox;
-    @FXML private ChoiceBox ratingChoiceBox;
+    @FXML private ChoiceBox<Quality> qualityChoiceBox;
+    @FXML private ChoiceBox<Genre> genreChoiceBox;
+    @FXML private ChoiceBox<Rating> ratingChoiceBox;
     @FXML private TableView<Movie> moviesTableView;
     @FXML private TableColumn<Movie, Boolean> checkedTableColumn;
     @FXML private CheckBox selectAllCheckBox;
@@ -40,6 +40,8 @@ public class MainWindowController implements Initializable {
     @FXML private RadioButton downloadAllRadioButton;
     @FXML private ProgressIndicator downloadProgressIndicator;
     @FXML private Label downloadLabel;
+    @FXML private Label totalMoviesLabel;
+    @FXML private Button cancelDownloadButton;
 
     private ArrayList<Movie> movies;
     private ObservableList<Movie> observableMovies;
@@ -65,12 +67,12 @@ public class MainWindowController implements Initializable {
     protected void searchMovies(ActionEvent event) {
         searchingProgressIndicator.setVisible(true);
         String searchTerm = searchTermTextField.getText();
-        Quality quality = (Quality) qualityChoiceBox.getValue();
-        Genre genre = (Genre) genreChoiceBox.getValue();
-        Rating rating = (Rating) ratingChoiceBox.getValue();
+        Quality quality = qualityChoiceBox.getValue();
+        Genre genre = genreChoiceBox.getValue();
+        Rating rating = ratingChoiceBox.getValue();
         SearchParameters searchParameters = new SearchParameters(searchTerm, quality, genre, rating, OrderBy.ALPHABETICAL);
 
-        Task task = new Task() {
+        Task searchTask = new Task() {
             @Override
             protected Object call() throws Exception {
                 movies.clear();
@@ -79,30 +81,31 @@ public class MainWindowController implements Initializable {
             }
         };
 
-        task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                if (!movies.isEmpty()) {
-                    observableMovies.setAll(movies);
-                    moviesTableView.setItems(observableMovies);
-                    searchingProgressIndicator.setVisible(false);
-                    selectAllCheckBox.setDisable(false);
-                    selectAllCheckBox.setSelected(false);
-                    downloadButton.setDisable(false);
-                    downloadAllRadioButton.setDisable(false);
-                    hd720pRadioButton.setDisable(false);
-                    hd1080pRadioButton.setDisable(false);
-                } else {
-                    searchingProgressIndicator.setVisible(false);
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setHeaderText("No search results");
-                    alert.setContentText("There seems to be no movies to match the search term.");
-                    alert.showAndWait();
-                }
+        searchTask.setOnSucceeded(event1 -> {
+            if (!movies.isEmpty()) {
+                observableMovies.setAll(movies);
+                moviesTableView.setItems(observableMovies);
+                totalMoviesLabel.setText("(" + Integer.toString(observableMovies.size()) + ")");
+                totalMoviesLabel.setVisible(true);
+                searchingProgressIndicator.setVisible(false);
+                selectAllCheckBox.setDisable(false);
+                selectAllCheckBox.setSelected(false);
+                downloadButton.setDisable(false);
+                downloadAllRadioButton.setDisable(false);
+                hd720pRadioButton.setDisable(false);
+                hd1080pRadioButton.setDisable(false);
+            } else {
+                searchingProgressIndicator.setVisible(false);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("No search results");
+                alert.setContentText("There seems to be no movies to match the search term.");
+                alert.showAndWait();
             }
         });
 
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
+        // When using lambdas, getException() produces an error that's still need
+        // to be resolved
+        searchTask.setOnFailed(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
                 searchingProgressIndicator.setVisible(false);
@@ -113,7 +116,7 @@ public class MainWindowController implements Initializable {
             }
         });
 
-        new Thread(task).start();
+        new Thread(searchTask).start();
     }
 
     @FXML
@@ -131,21 +134,18 @@ public class MainWindowController implements Initializable {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setTitle("Location to save torrent files");
             File destinationDirectory = directoryChooser.showDialog(YTSTorrentDownloader.getStage());
-            Task task = new Task() {
+            Task downloadTask = new Task() {
                 @Override
                 protected Integer call() throws Exception {
                     TorrentFileDownloader torrentFileDownloader = new TorrentFileDownloader();
                     int counter = 0;
                     int progress = 0;
                     Path path = destinationDirectory.toPath();
-                    /*for (Movie movie : observableMovies) {
-                        if (movie.isChecked()) {
-                            counter += torrentFileDownloader.download(movie, path);
-                        }
-                    }*/
-                    //-------------------------
                     if (downloadAllRadioButton.isSelected()) {
                         for (Movie movie : observableMovies) {
+                            if (isCancelled()) {
+                                break;
+                            }
                             if (movie.isChecked()) {
                                 counter += torrentFileDownloader.download(movie, path);
                             }
@@ -153,6 +153,9 @@ public class MainWindowController implements Initializable {
                         }
                     } else if (hd1080pRadioButton.isSelected()) {
                         for (Movie movie : observableMovies) {
+                            if (isCancelled()) {
+                                break;
+                            }
                             if (movie.isChecked()) {
                                 counter += torrentFileDownloader.download(movie, path, Quality.HD_1080P) ? 1 : 0;
                             }
@@ -160,30 +163,32 @@ public class MainWindowController implements Initializable {
                         }
                     } else if (hd720pRadioButton.isSelected()) {
                         for (Movie movie : observableMovies) {
+                            if (isCancelled()) {
+                                break;
+                            }
                             if (movie.isChecked()) {
                                 counter += torrentFileDownloader.download(movie, path, Quality.HD_720P) ? 1 : 0;
                             }
                             updateProgress(++progress, observableMovies.size());
                         }
                     }
-                    //-------------------------
                     return counter;
                 }
             };
 
-            task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-                @Override
-                public void handle(WorkerStateEvent event) {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setHeaderText("Download complete");
-                    alert.setContentText(task.getValue() + " files saved.");
-                    alert.showAndWait();
-                    downloadProgressIndicator.setVisible(false);
-                    downloadLabel.setVisible(false);
-                }
+            downloadTask.setOnSucceeded(event1 -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("Download complete");
+                alert.setContentText(downloadTask.getValue() + " files saved.");
+                alert.showAndWait();
+                downloadProgressIndicator.setVisible(false);
+                downloadLabel.setVisible(false);
+                cancelDownloadButton.setVisible(false);
             });
 
-            task.setOnFailed(new EventHandler<WorkerStateEvent>() {
+            // When using lambdas, getException() produces an error that's still need
+            // to be resolved
+            downloadTask.setOnFailed(new EventHandler<WorkerStateEvent>() {
                 @Override
                 public void handle(WorkerStateEvent event) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -192,14 +197,23 @@ public class MainWindowController implements Initializable {
                     alert.showAndWait();
                     downloadProgressIndicator.setVisible(false);
                     downloadLabel.setVisible(false);
+                    cancelDownloadButton.setVisible(false);
                 }
+            });
+
+            downloadTask.setOnCancelled(event1 -> {
+                downloadProgressIndicator.setVisible(false);
+                downloadLabel.setVisible(false);
+                cancelDownloadButton.setVisible(false);
             });
 
             if (destinationDirectory != null) {
                 downloadProgressIndicator.setVisible(true);
                 downloadLabel.setVisible(true);
-                downloadProgressIndicator.progressProperty().bind(task.progressProperty());
-                new Thread(task).start();
+                downloadProgressIndicator.progressProperty().bind(downloadTask.progressProperty());
+                cancelDownloadButton.setOnAction(e -> downloadTask.cancel());
+                cancelDownloadButton.setVisible(true);
+                new Thread(downloadTask).start();
             }
         } else {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);

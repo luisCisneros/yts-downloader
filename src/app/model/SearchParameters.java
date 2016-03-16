@@ -49,7 +49,7 @@ public class SearchParameters {
         HORROR("horror", "Horror"),
         MUSIC("music", "Music"),
         MUSICAL("musical", "Musical"),
-        MYSTERY("mystery", "Mistery"),
+        MYSTERY("mystery", "Mystery"),
         NEWS("news", "News"),
         REALITY_TV("reality-tv", "Reality-TV"),
         ROMANCE("romance", "Romance"),
@@ -120,7 +120,7 @@ public class SearchParameters {
         RATING("rating", "Rating"),
         LIKES("likes", "Likes"),
         ALPHABETICAL("alphabetical", "Alphabetical"),
-        DOWNLOADS("dowloads", "Downloads");
+        DOWNLOADS("downloads", "Downloads");
 
         private final String value;
         private final String label;
