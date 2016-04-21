@@ -6,9 +6,9 @@ A [YTS YIFY movies](https://yts.ag/) torrent files downloader.
 ## About
 You may wonder, what's the advantage between using this program and visiting the official website. Well, the main advantage is that you can download several torrent files with just one action.
 
-The idea for making this program came up because, while browsing [YTS YIFY](https://yts.ag/), I was looking for action movies with a score 8+ and there were more than 100 results. Due to it wasn't practical going one by one and downloading each torrent file, I thought "there has to be a better way to download several files", and this program was the result.
+The idea for making this program came up because, while browsing [YTS YIFY](https://yts.ag/), I was looking for action movies with a score 8+ and there were more than 100 results. Due to it wasn't practical going one by one and downloading each torrent file, I thought "there has to be a better way to download several files", and this program was the result. Also, this project helped me to put in practice JavaFX, which IMO is far better than Swing or AWT.
 
-Fun story: during the final phase of v1.0 of this program, while visiting [YTS YIFY](https://yts.ag/), I saw something on the bottom of the page that I haven't been aware of before... a link to their API docs. I made this whole thing using a bot that goes to each page of results and parses the html code to extract the data relevant to the movie, because I didn't know there was an open API :sweat_smile:. Maybe in a later version I'll incorporate the API functionality...
+**Fun story:** during the final phase of v1.0 of this program, while visiting [YTS YIFY](https://yts.ag/), I saw something on the bottom of the page that I haven't been aware of before... a link to their API docs. I made this whole thing using a bot that goes to each page of results and parses the html code to extract the data relevant to the movie, because I didn't know there was an open API :sweat_smile:. Maybe in a later version I'll incorporate the API functionality...
 
 ## Features
 - Download multiple torrent files just by pressing one button.
@@ -16,6 +16,14 @@ Fun story: during the final phase of v1.0 of this program, while visiting [YTS Y
 - Search filters.
 - Select just the movies and files that you want to download.
 - Includes GUI.
+
+## TODO List
+Feel free to contribute with your own ideas or suggestions. All feedback will be apreciated.
+
+- [ ] Increase time for searches before getting a timed-out exception.
+- [ ] Add the code necessary to download 3D versions of the movie.
+- [ ] Add a button to cancel searches.
+- [ ] Add a build script so people can download the project and easily build it in their own machines (I need help for this one).
 
 ## License
 [The MIT License (MIT)](https://opensource.org/licenses/MIT)
